@@ -3,3 +3,10 @@
 .venv/
 __pycache__/
 *.pyc
+
+# React app
+app/node_modules/
+app/dist/
+app/.vite/
+app/*.local
+app/*.tsbuildinfo
