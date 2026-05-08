@@ -8,9 +8,9 @@ export default function App() {
   const hasImages = useStore((s) => s.images.length > 0)
 
   return (
-    <div className="dark min-h-full bg-background text-foreground">
+    <div className="dark flex h-screen flex-col bg-background text-foreground">
       <Toolbar />
-      <main className="px-6 py-6">
+      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto px-6 py-6">
         {hasImages ? <ImageGrid /> : <Dropzone />}
       </main>
       <Toaster position="bottom-right" richColors closeButton />

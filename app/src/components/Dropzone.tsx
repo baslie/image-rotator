@@ -118,7 +118,7 @@ export function Dropzone({ variant = 'hero' }: Props) {
       onDragLeave={() => setIsOver(false)}
       onDrop={onDrop}
       className={cn(
-        'relative flex w-full flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed border-border bg-card/40 p-12 text-center transition-colors',
+        'relative flex w-full min-h-0 flex-1 flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed border-border bg-card/40 p-12 text-center transition-colors',
         isOver && 'border-primary bg-primary/5'
       )}
     >
