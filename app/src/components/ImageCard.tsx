@@ -2,12 +2,12 @@ import { memo } from 'react'
 import { Hand, RotateCcw, RotateCw, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
-import { useStore, type Sticker } from '@/store'
+import { useStore, type ImageItem } from '@/store'
 import { cn } from '@/lib/utils'
 import { getRotatedFitScale } from '@/lib/angle'
-import { useRotateDrag } from './sticker/useRotateDrag'
+import { useRotateDrag } from './image/useRotateDrag'
 
-type Props = { sticker: Sticker }
+type Props = { image: ImageItem }
 
 const SNAP_TARGETS = [0, 90, 180, 270]
 const SNAP_THRESHOLD = 6
@@ -20,14 +20,14 @@ function snapAngle(angle: number): number {
   return angle
 }
 
-function StickerCardImpl({ sticker }: Props) {
+function ImageCardImpl({ image }: Props) {
   const setAngle = useStore((s) => s.setAngle)
   const bumpAngle = useStore((s) => s.bumpAngle)
-  const removeSticker = useStore((s) => s.removeSticker)
+  const removeImage = useStore((s) => s.removeImage)
 
   const { handlers, dragging, snapHit } = useRotateDrag({
-    angle: sticker.angle,
-    onChange: (deg) => setAngle(sticker.id, deg),
+    angle: image.angle,
+    onChange: (deg) => setAngle(image.id, deg),
     snap: snapAngle,
   })
 
@@ -35,32 +35,30 @@ function StickerCardImpl({ sticker }: Props) {
     <div className="group relative flex flex-col gap-3 rounded-xl bg-card/60 p-3 backdrop-blur transition-colors hover:bg-card">
       <div className="checker-bg relative aspect-square overflow-hidden rounded-lg">
         <img
-          src={sticker.previewUrl}
-          alt={sticker.name}
+          src={image.previewUrl}
+          alt={image.name}
           draggable={false}
           className="absolute inset-0 m-auto h-full w-full select-none object-contain p-2 transition-transform duration-100 ease-out"
           style={{
-            transform: `rotate(${sticker.angle}deg) scale(${getRotatedFitScale(
-              sticker.angle
+            transform: `rotate(${image.angle}deg) scale(${getRotatedFitScale(
+              image.angle
             )})`,
           }}
         />
 
-        {/* Drag-rotation overlay */}
         <div
           role="slider"
           aria-label="Перетащить для поворота"
-          aria-valuenow={Math.round(sticker.angle)}
+          aria-valuenow={Math.round(image.angle)}
           aria-valuemin={0}
           aria-valuemax={360}
           {...handlers}
-          onDoubleClick={() => setAngle(sticker.id, 0)}
+          onDoubleClick={() => setAngle(image.id, 0)}
           className={cn(
             'absolute inset-0 touch-none select-none',
             dragging ? 'cursor-grabbing' : 'cursor-grab'
           )}
         >
-          {/* Hand hint при наведении */}
           <div
             className={cn(
               'pointer-events-none absolute inset-0 flex items-center justify-center transition-opacity',
@@ -74,7 +72,6 @@ function StickerCardImpl({ sticker }: Props) {
             </div>
           </div>
 
-          {/* Snap-индикатор: вспышка кольцом, когда thumb прилип к якорю */}
           <div
             className={cn(
               'pointer-events-none absolute inset-1 rounded-md ring-2 ring-primary transition-opacity duration-150',
@@ -85,7 +82,7 @@ function StickerCardImpl({ sticker }: Props) {
 
         <button
           type="button"
-          onClick={() => removeSticker(sticker.id)}
+          onClick={() => removeImage(image.id)}
           className="absolute right-1.5 top-1.5 z-10 inline-flex size-6 items-center justify-center rounded-full bg-background/70 text-muted-foreground opacity-0 backdrop-blur transition group-hover:opacity-100 hover:bg-destructive hover:text-destructive-foreground"
           aria-label="Удалить"
         >
@@ -95,15 +92,15 @@ function StickerCardImpl({ sticker }: Props) {
 
       <div className="flex items-center gap-3 px-1">
         <Slider
-          value={[sticker.angle]}
+          value={[image.angle]}
           min={0}
           max={360}
           step={1}
           snapMarks={SNAP_MARKS}
-          onValueChange={(v) => setAngle(sticker.id, snapAngle(v[0] ?? 0))}
+          onValueChange={(v) => setAngle(image.id, snapAngle(v[0] ?? 0))}
         />
         <span className="w-12 shrink-0 text-right font-mono text-xs tabular-nums text-muted-foreground">
-          {Math.round(sticker.angle)}°
+          {Math.round(image.angle)}°
         </span>
       </div>
 
@@ -112,8 +109,8 @@ function StickerCardImpl({ sticker }: Props) {
           variant="ghost"
           size="sm"
           className="h-8 px-2"
-          onClick={() => setAngle(sticker.id, 0)}
-          disabled={sticker.angle === 0}
+          onClick={() => setAngle(image.id, 0)}
+          disabled={image.angle === 0}
           aria-label="Сбросить"
           title="Сбросить угол"
         >
@@ -123,7 +120,7 @@ function StickerCardImpl({ sticker }: Props) {
           variant="secondary"
           size="sm"
           className="h-8 flex-1 gap-2"
-          onClick={() => bumpAngle(sticker.id, 90)}
+          onClick={() => bumpAngle(image.id, 90)}
           aria-label="Повернуть на 90 градусов по часовой стрелке"
           title="+90° по часовой"
         >
@@ -132,11 +129,11 @@ function StickerCardImpl({ sticker }: Props) {
         </Button>
       </div>
 
-      <p className="truncate text-xs text-muted-foreground" title={sticker.name}>
-        {sticker.name}
+      <p className="truncate text-xs text-muted-foreground" title={image.name}>
+        {image.name}
       </p>
     </div>
   )
 }
 
-export const StickerCard = memo(StickerCardImpl)
+export const ImageCard = memo(ImageCardImpl)

@@ -47,7 +47,7 @@ export function useRotateDrag({ angle, onChange, snap }: Options): {
     try {
       target.setPointerCapture(e.pointerId)
     } catch {
-      // No-op: capture не критичен для базового drag
+      // No-op
     }
     dragRef.current = {
       cx,

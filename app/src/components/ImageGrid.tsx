@@ -1,8 +1,8 @@
 import { useStore } from '@/store'
-import { StickerCard } from './StickerCard'
+import { ImageCard } from './ImageCard'
 
-export function StickerGrid() {
-  const stickers = useStore((s) => s.stickers)
+export function ImageGrid() {
+  const images = useStore((s) => s.images)
   const columns = useStore((s) => s.columns)
 
   return (
@@ -12,8 +12,8 @@ export function StickerGrid() {
         gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
       }}
     >
-      {stickers.map((s) => (
-        <StickerCard key={s.id} sticker={s} />
+      {images.map((img) => (
+        <ImageCard key={img.id} image={img} />
       ))}
     </div>
   )

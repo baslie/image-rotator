@@ -1,35 +1,39 @@
 import { useState } from 'react'
-import { Download, RotateCcw, Sparkles, Trash2 } from 'lucide-react'
+import { FolderDown, RotateCcw, Sparkles, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { useStore } from '@/store'
-import { exportZip } from '@/lib/export'
+import { exportToFolder } from '@/lib/tauri-export'
 import { Dropzone } from './Dropzone'
 import { ColumnSelector } from './ColumnSelector'
 
 export function Toolbar() {
-  const stickers = useStore((s) => s.stickers)
+  const images = useStore((s) => s.images)
   const resetAll = useStore((s) => s.resetAllAngles)
   const clearAll = useStore((s) => s.clearAll)
   const columns = useStore((s) => s.columns)
   const setColumns = useStore((s) => s.setColumns)
   const [busy, setBusy] = useState(false)
 
-  const count = stickers.length
-  const rotatedCount = stickers.filter((s) => s.angle !== 0).length
+  const count = images.length
+  const rotatedCount = images.filter((s) => s.angle !== 0).length
 
   const onExport = async () => {
     if (count === 0) {
-      toast.info('Сначала загрузите стикеры')
+      toast.info('Сначала загрузите изображения')
       return
     }
     setBusy(true)
-    const id = toast.loading(`Готовлю ${count} стикеров… 0/${count}`)
+    const id = toast.loading(`Готовлю ${count} изображений… 0/${count}`)
     try {
       const onProgress = (done: number, total: number) =>
-        toast.loading(`Готовлю стикеры… ${done}/${total}`, { id })
-      await exportZip(stickers, onProgress)
-      toast.success(`Скачан ZIP с ${count} стикерами`, { id })
+        toast.loading(`Готовлю изображения… ${done}/${total}`, { id })
+      const result = await exportToFolder(images, onProgress)
+      if (result.cancelled) {
+        toast.dismiss(id)
+        return
+      }
+      toast.success(`Сохранено ${result.count} в ${result.path}`, { id })
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : 'Что-то пошло не так'
@@ -46,14 +50,14 @@ export function Toolbar() {
           <div className="rounded-md bg-primary/15 p-1.5 text-primary">
             <Sparkles className="size-4" />
           </div>
-          <h1 className="text-base font-semibold">Sticker Rotator</h1>
+          <h1 className="text-base font-semibold">Image Rotator</h1>
         </div>
 
         <div className="ml-2 hidden text-sm text-muted-foreground sm:block">
           {count > 0 ? (
             <>
               <span className="font-medium text-foreground">{count}</span>{' '}
-              стикеров
+              изображений
               {rotatedCount > 0 && (
                 <>
                   {' · '}
@@ -63,7 +67,7 @@ export function Toolbar() {
               )}
             </>
           ) : (
-            <>стикеры не загружены</>
+            <>изображения не загружены</>
           )}
         </div>
 
@@ -88,7 +92,7 @@ export function Toolbar() {
                 variant="ghost"
                 size="sm"
                 onClick={() => {
-                  if (confirm(`Очистить ${count} стикеров?`)) clearAll()
+                  if (confirm(`Очистить ${count} изображений?`)) clearAll()
                 }}
                 title="Удалить все"
               >
@@ -99,8 +103,8 @@ export function Toolbar() {
           )}
 
           <Button onClick={onExport} disabled={busy || count === 0}>
-            <Download className="size-4" />
-            Скачать ZIP
+            <FolderDown className="size-4" />
+            Экспорт в папку
           </Button>
         </div>
       </div>

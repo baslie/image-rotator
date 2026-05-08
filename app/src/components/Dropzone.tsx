@@ -19,7 +19,7 @@ const WEBKIT_DIRECTORY_PROPS = {
 } as Record<string, string>
 
 export function Dropzone({ variant = 'hero' }: Props) {
-  const addStickers = useStore((s) => s.addStickers)
+  const addImages = useStore((s) => s.addImages)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const folderInputRef = useRef<HTMLInputElement>(null)
   const [isOver, setIsOver] = useState(false)
@@ -28,8 +28,8 @@ export function Dropzone({ variant = 'hero' }: Props) {
     (files: File[]) => {
       const { png, skipped } = filterPng(files)
       if (png.length === 0 && skipped.length === 0) return
-      const added = addStickers(png)
-      if (added > 0) toast.success(`Добавлено стикеров: ${added}`)
+      const added = addImages(png)
+      if (added > 0) toast.success(`Добавлено изображений: ${added}`)
       if (skipped.length > 0)
         toast.warning(
           `Пропущено не-PNG файлов: ${skipped.length}`,
@@ -40,9 +40,9 @@ export function Dropzone({ variant = 'hero' }: Props) {
           }
         )
       if (added === 0 && png.length > 0)
-        toast.info('Все эти стикеры уже добавлены')
+        toast.info('Все эти изображения уже добавлены')
     },
-    [addStickers]
+    [addImages]
   )
 
   const onDrop = useCallback(
@@ -127,7 +127,7 @@ export function Dropzone({ variant = 'hero' }: Props) {
       </div>
       <div className="space-y-1">
         <h2 className="text-xl font-semibold text-foreground">
-          Перетащите PNG-стикеры или папку сюда
+          Перетащите PNG-изображения или папку сюда
         </h2>
         <p className="text-sm text-muted-foreground">
           Поддерживаются файлы и целые папки. Прозрачность сохраняется.
