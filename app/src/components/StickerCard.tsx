@@ -1,11 +1,5 @@
 import { memo, useRef, useState } from 'react'
-import {
-  ChevronLeft,
-  ChevronRight,
-  Hand,
-  RotateCcw,
-  X,
-} from 'lucide-react'
+import { Hand, RotateCcw, RotateCw, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import { useStore, type Sticker } from '@/store'
@@ -13,7 +7,6 @@ import { cn } from '@/lib/utils'
 
 type Props = { sticker: Sticker }
 
-const STEP_DEG = 5
 const SNAP_TARGETS = [0, 90, 180, 270, 360]
 const SNAP_THRESHOLD = 6
 const SNAP_MARKS = [0, 90, 180, 270]
@@ -173,34 +166,26 @@ function StickerCardImpl({ sticker }: Props) {
 
       <div className="flex items-center gap-1">
         <Button
-          variant="secondary"
-          size="sm"
-          className="h-7 flex-1 px-0"
-          onClick={() => bumpAngle(sticker.id, -STEP_DEG)}
-          aria-label={`Повернуть на ${STEP_DEG}° против часовой`}
-          title={`−${STEP_DEG}°`}
-        >
-          <ChevronLeft className="size-4" />
-        </Button>
-        <Button
           variant="ghost"
           size="sm"
-          className="h-7 px-2"
+          className="h-8 px-2"
           onClick={() => setAngle(sticker.id, 0)}
+          disabled={sticker.angle === 0}
           aria-label="Сбросить"
           title="Сбросить угол"
         >
-          <RotateCcw className="size-3.5" />
+          <RotateCcw className="size-4" />
         </Button>
         <Button
           variant="secondary"
           size="sm"
-          className="h-7 flex-1 px-0"
-          onClick={() => bumpAngle(sticker.id, STEP_DEG)}
-          aria-label={`Повернуть на ${STEP_DEG}° по часовой`}
-          title={`+${STEP_DEG}°`}
+          className="h-8 flex-1 gap-2"
+          onClick={() => bumpAngle(sticker.id, 90)}
+          aria-label="Повернуть на 90 градусов по часовой стрелке"
+          title="+90° по часовой"
         >
-          <ChevronRight className="size-4" />
+          <RotateCw className="size-4" />
+          Повернуть 90°
         </Button>
       </div>
 
