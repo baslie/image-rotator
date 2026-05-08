@@ -1,23 +1,21 @@
 import { useState } from 'react'
-import { Download, FolderDown, RotateCcw, Sparkles, Trash2 } from 'lucide-react'
+import { Download, RotateCcw, Sparkles, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { useStore } from '@/store'
-import { exportToFolder, exportZip } from '@/lib/export'
-import { useFsAccessSupport } from '@/hooks/use-fs-access'
+import { exportZip } from '@/lib/export'
 import { Dropzone } from './Dropzone'
 
 export function Toolbar() {
   const stickers = useStore((s) => s.stickers)
   const resetAll = useStore((s) => s.resetAllAngles)
   const clearAll = useStore((s) => s.clearAll)
-  const fsSupported = useFsAccessSupport()
   const [busy, setBusy] = useState(false)
 
   const count = stickers.length
   const rotatedCount = stickers.filter((s) => s.angle !== 0).length
 
-  const onExport = async (kind: 'zip' | 'folder') => {
+  const onExport = async () => {
     if (count === 0) {
       toast.info('Сначала загрузите стикеры')
       return
@@ -27,19 +25,12 @@ export function Toolbar() {
     try {
       const onProgress = (done: number, total: number) =>
         toast.loading(`Готовлю стикеры… ${done}/${total}`, { id })
-      if (kind === 'zip') {
-        await exportZip(stickers, onProgress)
-        toast.success(`Скачан ZIP с ${count} стикерами`, { id })
-      } else {
-        await exportToFolder(stickers, onProgress)
-        toast.success(`Сохранено в папку: ${count} стикеров`, { id })
-      }
+      await exportZip(stickers, onProgress)
+      toast.success(`Скачан ZIP с ${count} стикерами`, { id })
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : 'Что-то пошло не так'
-      if (message.includes('aborted') || message.includes('user'))
-        toast.dismiss(id)
-      else toast.error(message, { id })
+      toast.error(message, { id })
     } finally {
       setBusy(false)
     }
@@ -102,23 +93,10 @@ export function Toolbar() {
             </>
           )}
 
-          <Button
-            onClick={() => onExport('zip')}
-            disabled={busy || count === 0}
-          >
+          <Button onClick={onExport} disabled={busy || count === 0}>
             <Download className="size-4" />
             Скачать ZIP
           </Button>
-          {fsSupported && (
-            <Button
-              variant="secondary"
-              onClick={() => onExport('folder')}
-              disabled={busy || count === 0}
-            >
-              <FolderDown className="size-4" />
-              В папку…
-            </Button>
-          )}
         </div>
       </div>
     </header>
