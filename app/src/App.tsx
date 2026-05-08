@@ -10,7 +10,7 @@ export default function App() {
   return (
     <div className="dark min-h-full bg-background text-foreground">
       <Toolbar />
-      <main className="mx-auto max-w-[1600px] px-6 py-6">
+      <main className="px-6 py-6">
         {hasStickers ? <StickerGrid /> : <Dropzone />}
       </main>
       <Toaster position="bottom-right" richColors closeButton />

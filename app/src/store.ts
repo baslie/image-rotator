@@ -10,9 +10,11 @@ export type Sticker = {
 
 type State = {
   stickers: Sticker[]
+  columns: number
   addStickers: (files: File[]) => number
   setAngle: (id: string, angle: number) => void
   bumpAngle: (id: string, delta: number) => void
+  setColumns: (n: number) => void
   removeSticker: (id: string) => void
   resetAllAngles: () => void
   clearAll: () => void
@@ -22,6 +24,9 @@ const dedupKey = (f: File) => `${f.name}::${f.size}`
 
 export const useStore = create<State>((set, get) => ({
   stickers: [],
+  columns: 6,
+
+  setColumns: (n) => set({ columns: n }),
 
   addStickers: (files) => {
     const existing = new Set(get().stickers.map((s) => dedupKey(s.file)))
