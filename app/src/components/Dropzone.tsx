@@ -77,7 +77,7 @@ export function Dropzone({ variant = 'hero' }: Props) {
           onClick={() => folderInputRef.current?.click()}
         >
           <FolderOpen className="size-4" />
-          Папку
+          Добавить папку
         </Button>
         <input
           ref={fileInputRef}
