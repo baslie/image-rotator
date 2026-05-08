@@ -1,0 +1,5 @@
+.claude/
+.locks/
+.venv/
+__pycache__/
+*.pyc
