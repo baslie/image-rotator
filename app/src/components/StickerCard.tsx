@@ -1,15 +1,26 @@
 import { memo } from 'react'
-import { RotateCcw, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, RotateCcw, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import { useStore, type Sticker } from '@/store'
 
 type Props = { sticker: Sticker }
 
-const PRESETS = [90, 180, 270] as const
+const STEP_DEG = 5
+const SNAP_TARGETS = [0, 90, 180, 270, 360]
+const SNAP_THRESHOLD = 4
+const SNAP_MARKS = [0, 90, 180, 270]
+
+function snapAngle(angle: number): number {
+  for (const t of SNAP_TARGETS) {
+    if (Math.abs(angle - t) <= SNAP_THRESHOLD) return t
+  }
+  return angle
+}
 
 function StickerCardImpl({ sticker }: Props) {
   const setAngle = useStore((s) => s.setAngle)
+  const bumpAngle = useStore((s) => s.bumpAngle)
   const removeSticker = useStore((s) => s.removeSticker)
 
   return (
@@ -32,13 +43,14 @@ function StickerCardImpl({ sticker }: Props) {
         </button>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 px-1">
         <Slider
           value={[sticker.angle]}
           min={0}
           max={360}
           step={1}
-          onValueChange={(v) => setAngle(sticker.id, v[0] ?? 0)}
+          snapMarks={SNAP_MARKS}
+          onValueChange={(v) => setAngle(sticker.id, snapAngle(v[0] ?? 0))}
         />
         <span className="w-12 shrink-0 text-right font-mono text-xs tabular-nums text-muted-foreground">
           {Math.round(sticker.angle)}°
@@ -46,17 +58,16 @@ function StickerCardImpl({ sticker }: Props) {
       </div>
 
       <div className="flex items-center gap-1">
-        {PRESETS.map((p) => (
-          <Button
-            key={p}
-            variant={sticker.angle === p ? 'default' : 'secondary'}
-            size="sm"
-            className="h-7 flex-1 px-0 text-xs"
-            onClick={() => setAngle(sticker.id, p)}
-          >
-            {p}°
-          </Button>
-        ))}
+        <Button
+          variant="secondary"
+          size="sm"
+          className="h-7 flex-1 px-0"
+          onClick={() => bumpAngle(sticker.id, -STEP_DEG)}
+          aria-label={`Повернуть на ${STEP_DEG}° против часовой`}
+          title={`−${STEP_DEG}°`}
+        >
+          <ChevronLeft className="size-4" />
+        </Button>
         <Button
           variant="ghost"
           size="sm"
@@ -66,6 +77,16 @@ function StickerCardImpl({ sticker }: Props) {
           title="Сбросить угол"
         >
           <RotateCcw className="size-3.5" />
+        </Button>
+        <Button
+          variant="secondary"
+          size="sm"
+          className="h-7 flex-1 px-0"
+          onClick={() => bumpAngle(sticker.id, STEP_DEG)}
+          aria-label={`Повернуть на ${STEP_DEG}° по часовой`}
+          title={`+${STEP_DEG}°`}
+        >
+          <ChevronRight className="size-4" />
         </Button>
       </div>
 

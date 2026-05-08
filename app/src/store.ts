@@ -12,6 +12,7 @@ type State = {
   stickers: Sticker[]
   addStickers: (files: File[]) => number
   setAngle: (id: string, angle: number) => void
+  bumpAngle: (id: string, delta: number) => void
   removeSticker: (id: string) => void
   resetAllAngles: () => void
   clearAll: () => void
@@ -45,6 +46,16 @@ export const useStore = create<State>((set, get) => ({
     set({
       stickers: get().stickers.map((s) =>
         s.id === id ? { ...s, angle: ((angle % 360) + 360) % 360 } : s
+      ),
+    })
+  },
+
+  bumpAngle: (id, delta) => {
+    set({
+      stickers: get().stickers.map((s) =>
+        s.id === id
+          ? { ...s, angle: (((s.angle + delta) % 360) + 360) % 360 }
+          : s
       ),
     })
   },
