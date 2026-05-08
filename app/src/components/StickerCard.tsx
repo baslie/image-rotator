@@ -90,14 +90,20 @@ function StickerCardImpl({ sticker }: Props) {
   }
 
   return (
-    <div className="group relative flex flex-col gap-3 rounded-xl border border-border bg-card/60 p-3 backdrop-blur transition-colors hover:bg-card">
+    <div className="group relative flex flex-col gap-3 rounded-xl bg-card/60 p-3 backdrop-blur transition-colors hover:bg-card">
       <div className="checker-bg relative aspect-square overflow-hidden rounded-lg">
         <img
           src={sticker.previewUrl}
           alt={sticker.name}
           draggable={false}
           className="absolute inset-0 m-auto h-full w-full select-none object-contain p-2 transition-transform duration-100 ease-out"
-          style={{ transform: `rotate(${sticker.angle}deg)` }}
+          style={{
+            transform: `rotate(${sticker.angle}deg) scale(${
+              1 /
+              (Math.abs(Math.cos((sticker.angle * Math.PI) / 180)) +
+                Math.abs(Math.sin((sticker.angle * Math.PI) / 180)))
+            })`,
+          }}
         />
 
         {/* Drag-rotation overlay */}
