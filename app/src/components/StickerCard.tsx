@@ -1,10 +1,11 @@
-import { memo, useRef, useState } from 'react'
+import { memo } from 'react'
 import { Hand, RotateCcw, RotateCw, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import { useStore, type Sticker } from '@/store'
 import { cn } from '@/lib/utils'
 import { getRotatedFitScale } from '@/lib/angle'
+import { useRotateDrag } from './sticker/useRotateDrag'
 
 type Props = { sticker: Sticker }
 
@@ -19,76 +20,16 @@ function snapAngle(angle: number): number {
   return angle
 }
 
-function angleFromPointer(
-  clientX: number,
-  clientY: number,
-  cx: number,
-  cy: number
-) {
-  return (Math.atan2(clientY - cy, clientX - cx) * 180) / Math.PI
-}
-
 function StickerCardImpl({ sticker }: Props) {
   const setAngle = useStore((s) => s.setAngle)
   const bumpAngle = useStore((s) => s.bumpAngle)
   const removeSticker = useStore((s) => s.removeSticker)
 
-  const dragRef = useRef<{
-    cx: number
-    cy: number
-    startPointer: number
-    startAngle: number
-    snapped: boolean
-  } | null>(null)
-  const [dragging, setDragging] = useState(false)
-  const [snapHit, setSnapHit] = useState(false)
-
-  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (e.button !== 0) return
-    const target = e.currentTarget
-    const rect = target.getBoundingClientRect()
-    const cx = rect.left + rect.width / 2
-    const cy = rect.top + rect.height / 2
-    try {
-      target.setPointerCapture(e.pointerId)
-    } catch {
-      // No-op: capture не критичен для базового drag
-    }
-    dragRef.current = {
-      cx,
-      cy,
-      startPointer: angleFromPointer(e.clientX, e.clientY, cx, cy),
-      startAngle: sticker.angle,
-      snapped: false,
-    }
-    setDragging(true)
-  }
-
-  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    const drag = dragRef.current
-    if (!drag) return
-    const cur = angleFromPointer(e.clientX, e.clientY, drag.cx, drag.cy)
-    const raw = drag.startAngle + (cur - drag.startPointer)
-    const snapped = snapAngle(raw)
-    const isSnapped = snapped !== raw
-    if (isSnapped !== drag.snapped) {
-      drag.snapped = isSnapped
-      setSnapHit(isSnapped)
-    }
-    setAngle(sticker.id, snapped)
-  }
-
-  const onPointerEnd = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!dragRef.current) return
-    try {
-      e.currentTarget.releasePointerCapture(e.pointerId)
-    } catch {
-      // No-op
-    }
-    dragRef.current = null
-    setDragging(false)
-    setSnapHit(false)
-  }
+  const { handlers, dragging, snapHit } = useRotateDrag({
+    angle: sticker.angle,
+    onChange: (deg) => setAngle(sticker.id, deg),
+    snap: snapAngle,
+  })
 
   return (
     <div className="group relative flex flex-col gap-3 rounded-xl bg-card/60 p-3 backdrop-blur transition-colors hover:bg-card">
@@ -112,10 +53,7 @@ function StickerCardImpl({ sticker }: Props) {
           aria-valuenow={Math.round(sticker.angle)}
           aria-valuemin={0}
           aria-valuemax={360}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerEnd}
-          onPointerCancel={onPointerEnd}
+          {...handlers}
           onDoubleClick={() => setAngle(sticker.id, 0)}
           className={cn(
             'absolute inset-0 touch-none select-none',
