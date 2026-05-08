@@ -36,7 +36,7 @@
       "icons/128x128@2x.png",
       "icons/icon.ico"
     ],
-    "category": "Graphics",
+    "category": "GraphicsAndDesign",
     "shortDescription": "Rotate PNG images with a draggable handle.",
     "longDescription": "Image Rotator is a tiny desktop app that lets you load a folder of PNG images, rotate each one with a draggable handle (snapping to 0/90/180/270), and export the rotated copies to any folder you choose.",
     "windows": {
