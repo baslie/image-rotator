@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import { useStore, type Sticker } from '@/store'
 import { cn } from '@/lib/utils'
+import { getRotatedFitScale } from '@/lib/angle'
 
 type Props = { sticker: Sticker }
 
@@ -98,11 +99,9 @@ function StickerCardImpl({ sticker }: Props) {
           draggable={false}
           className="absolute inset-0 m-auto h-full w-full select-none object-contain p-2 transition-transform duration-100 ease-out"
           style={{
-            transform: `rotate(${sticker.angle}deg) scale(${
-              1 /
-              (Math.abs(Math.cos((sticker.angle * Math.PI) / 180)) +
-                Math.abs(Math.sin((sticker.angle * Math.PI) / 180)))
-            })`,
+            transform: `rotate(${sticker.angle}deg) scale(${getRotatedFitScale(
+              sticker.angle
+            )})`,
           }}
         />
 
