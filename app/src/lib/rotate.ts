@@ -1,8 +1,10 @@
+import { normalizeAngle } from './angle'
+
 export async function rotateImageToBlob(
   file: File,
   angle: number
 ): Promise<Blob> {
-  const norm = ((angle % 360) + 360) % 360
+  const norm = normalizeAngle(angle)
   if (norm === 0) return file
 
   const bitmap = await createImageBitmap(file)

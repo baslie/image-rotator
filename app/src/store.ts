@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { normalizeAngle } from '@/lib/angle'
 
 export type Sticker = {
   id: string
@@ -50,7 +51,7 @@ export const useStore = create<State>((set, get) => ({
   setAngle: (id, angle) => {
     set({
       stickers: get().stickers.map((s) =>
-        s.id === id ? { ...s, angle: ((angle % 360) + 360) % 360 } : s
+        s.id === id ? { ...s, angle: normalizeAngle(angle) } : s
       ),
     })
   },
@@ -59,7 +60,7 @@ export const useStore = create<State>((set, get) => ({
     set({
       stickers: get().stickers.map((s) =>
         s.id === id
-          ? { ...s, angle: (((s.angle + delta) % 360) + 360) % 360 }
+          ? { ...s, angle: normalizeAngle(s.angle + delta) }
           : s
       ),
     })
