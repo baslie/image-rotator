@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils'
 
 type Props = { sticker: Sticker }
 
-const SNAP_TARGETS = [0, 90, 180, 270, 360]
+const SNAP_TARGETS = [0, 90, 180, 270]
 const SNAP_THRESHOLD = 6
 const SNAP_MARKS = [0, 90, 180, 270]
 
