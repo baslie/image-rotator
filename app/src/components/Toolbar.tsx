@@ -1,13 +1,11 @@
 import { useState } from 'react'
-import { Download, LayoutGrid, RotateCcw, Sparkles, Trash2 } from 'lucide-react'
+import { Download, RotateCcw, Sparkles, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { useStore } from '@/store'
 import { exportZip } from '@/lib/export'
-import { cn } from '@/lib/utils'
 import { Dropzone } from './Dropzone'
-
-const COLUMN_CHOICES = [4, 6, 8, 10] as const
+import { ColumnSelector } from './ColumnSelector'
 
 export function Toolbar() {
   const stickers = useStore((s) => s.stickers)
@@ -74,33 +72,7 @@ export function Toolbar() {
 
           {count > 0 && (
             <>
-              <div
-                role="radiogroup"
-                aria-label="Колонок в сетке"
-                className="inline-flex items-center gap-0.5 rounded-md border border-border bg-secondary/40 p-0.5"
-              >
-                <span className="px-1.5 text-muted-foreground">
-                  <LayoutGrid className="size-3.5" aria-hidden />
-                </span>
-                {COLUMN_CHOICES.map((n) => (
-                  <button
-                    key={n}
-                    type="button"
-                    role="radio"
-                    aria-checked={columns === n}
-                    onClick={() => setColumns(n)}
-                    title={`${n} колонок в строке`}
-                    className={cn(
-                      'inline-flex h-7 min-w-7 items-center justify-center rounded px-1.5 font-mono text-xs tabular-nums transition-colors',
-                      columns === n
-                        ? 'bg-background text-foreground shadow-sm'
-                        : 'text-muted-foreground hover:text-foreground'
-                    )}
-                  >
-                    {n}
-                  </button>
-                ))}
-              </div>
+              <ColumnSelector value={columns} onChange={setColumns} />
 
               <Button
                 variant="ghost"
