@@ -13,6 +13,11 @@ type Props = {
   variant?: 'hero' | 'compact'
 }
 
+const WEBKIT_DIRECTORY_PROPS = {
+  webkitdirectory: '',
+  directory: '',
+} as Record<string, string>
+
 export function Dropzone({ variant = 'hero' }: Props) {
   const addStickers = useStore((s) => s.addStickers)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -92,10 +97,7 @@ export function Dropzone({ variant = 'hero' }: Props) {
           type="file"
           hidden
           onChange={onFiles}
-          {...({ webkitdirectory: '', directory: '' } as Record<
-            string,
-            string
-          >)}
+          {...WEBKIT_DIRECTORY_PROPS}
         />
       </div>
     )
@@ -151,7 +153,7 @@ export function Dropzone({ variant = 'hero' }: Props) {
         type="file"
         hidden
         onChange={onFiles}
-        {...({ webkitdirectory: '', directory: '' } as Record<string, string>)}
+        {...WEBKIT_DIRECTORY_PROPS}
       />
     </div>
   )
