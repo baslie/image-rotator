@@ -1,20 +1,8 @@
-type FsEntry = {
-  isFile: boolean
-  isDirectory: boolean
-  name: string
-  fullPath: string
-  file?: (cb: (f: File) => void, err?: (e: unknown) => void) => void
-  createReader?: () => {
-    readEntries: (
-      cb: (entries: FsEntry[]) => void,
-      err?: (e: unknown) => void
-    ) => void
-  }
-}
-
-function readDirEntries(reader: NonNullable<FsEntry['createReader']> extends () => infer R ? R : never): Promise<FsEntry[]> {
+function readDirEntries(
+  reader: FileSystemDirectoryReader
+): Promise<FileSystemEntry[]> {
   return new Promise((resolve, reject) => {
-    const all: FsEntry[] = []
+    const all: FileSystemEntry[] = []
     const next = () => {
       reader.readEntries((batch) => {
         if (batch.length === 0) resolve(all)
@@ -28,15 +16,17 @@ function readDirEntries(reader: NonNullable<FsEntry['createReader']> extends () 
   })
 }
 
-async function walkEntry(entry: FsEntry): Promise<File[]> {
-  if (entry.isFile && entry.file) {
+async function walkEntry(entry: FileSystemEntry): Promise<File[]> {
+  if (entry.isFile) {
+    const fileEntry = entry as FileSystemFileEntry
     const file = await new Promise<File>((resolve, reject) => {
-      entry.file!((f) => resolve(f), reject)
+      fileEntry.file(resolve, reject)
     })
     return [file]
   }
-  if (entry.isDirectory && entry.createReader) {
-    const reader = entry.createReader()
+  if (entry.isDirectory) {
+    const dirEntry = entry as FileSystemDirectoryEntry
+    const reader = dirEntry.createReader()
     const children = await readDirEntries(reader)
     const nested = await Promise.all(children.map(walkEntry))
     return nested.flat()
@@ -48,17 +38,12 @@ export async function extractFilesFromDataTransfer(
   items: DataTransferItemList
 ): Promise<File[]> {
   const list: File[] = []
-  const entries: FsEntry[] = []
+  const entries: FileSystemEntry[] = []
 
   for (let i = 0; i < items.length; i++) {
     const item = items[i]
     if (item.kind !== 'file') continue
-    const entry =
-      'webkitGetAsEntry' in item
-        ? (item as DataTransferItem & {
-            webkitGetAsEntry: () => FsEntry | null
-          }).webkitGetAsEntry()
-        : null
+    const entry = item.webkitGetAsEntry()
     if (entry) {
       entries.push(entry)
     } else {
