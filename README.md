@@ -40,7 +40,6 @@ npm run tauri:build    # production-инсталлятор → app/src-tauri/tar
 
 - `app/` — фронтенд (React + Vite)
 - `app/src-tauri/` — Rust-крейт `image-rotator`, `tauri.conf.json`, иконки, capabilities
-- `CLAUDE.md` — заметки по сборке и архитектурным решениям
 
 ## Лицензия
 
