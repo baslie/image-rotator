@@ -65,6 +65,26 @@ export function Dropzone({ variant = 'hero' }: Props) {
     [ingest]
   )
 
+  const hiddenInputs = (
+    <>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/png"
+        multiple
+        hidden
+        onChange={onFiles}
+      />
+      <input
+        ref={folderInputRef}
+        type="file"
+        hidden
+        onChange={onFiles}
+        {...WEBKIT_DIRECTORY_PROPS}
+      />
+    </>
+  )
+
   if (variant === 'compact') {
     return (
       <div className="flex items-center gap-2">
@@ -84,21 +104,7 @@ export function Dropzone({ variant = 'hero' }: Props) {
           <FolderOpen className="size-4" />
           Добавить папку
         </Button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/png"
-          multiple
-          hidden
-          onChange={onFiles}
-        />
-        <input
-          ref={folderInputRef}
-          type="file"
-          hidden
-          onChange={onFiles}
-          {...WEBKIT_DIRECTORY_PROPS}
-        />
+        {hiddenInputs}
       </div>
     )
   }
@@ -140,21 +146,7 @@ export function Dropzone({ variant = 'hero' }: Props) {
           Выбрать папку
         </Button>
       </div>
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/png"
-        multiple
-        hidden
-        onChange={onFiles}
-      />
-      <input
-        ref={folderInputRef}
-        type="file"
-        hidden
-        onChange={onFiles}
-        {...WEBKIT_DIRECTORY_PROPS}
-      />
+      {hiddenInputs}
     </div>
   )
 }
