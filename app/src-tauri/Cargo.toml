@@ -1,6 +1,6 @@
 [package]
 name = "image-rotator"
-version = "0.1.0"
+version = "1.0.0"
 description = "Image Rotator — desktop app to rotate PNG images with a draggable handle and export them to a folder."
 authors = ["Roman Purtov"]
 edition = "2021"
