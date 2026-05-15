@@ -1,5 +1,5 @@
 import { memo } from 'react'
-import { Hand, RotateCcw, RotateCw, X } from 'lucide-react'
+import { Check, Hand, RotateCcw, RotateCw, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import { useStore, type ImageItem } from '@/store'
@@ -31,9 +31,22 @@ function ImageCardImpl({ image }: Props) {
     snap: snapAngle,
   })
 
+  const isEdited = image.angle !== 0
+
   return (
-    <div className="group relative flex flex-col gap-3 rounded-xl bg-card/60 p-3 backdrop-blur transition-colors hover:bg-card">
+    <div
+      className={cn(
+        'group relative flex flex-col gap-3 rounded-xl bg-card/60 p-3 backdrop-blur transition-colors hover:bg-card',
+        isEdited && 'ring-2 ring-primary/70 ring-offset-2 ring-offset-background'
+      )}
+    >
       <div className="checker-bg relative aspect-square overflow-hidden rounded-lg">
+        {isEdited && (
+          <div className="pointer-events-none absolute left-1.5 top-1.5 z-10 inline-flex items-center gap-1 rounded-full bg-primary/90 px-2 py-0.5 text-xs font-medium text-primary-foreground shadow backdrop-blur">
+            <Check className="size-3" />
+            {Math.round(image.angle)}°
+          </div>
+        )}
         <img
           src={image.previewUrl}
           alt={image.name}
