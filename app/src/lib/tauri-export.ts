@@ -1,6 +1,7 @@
 import { open } from '@tauri-apps/plugin-dialog'
 import { writeFile } from '@tauri-apps/plugin-fs'
 import { rotateImageToBlob } from './rotate'
+import { trimTransparentEdges } from './trim'
 import type { ImageItem } from '@/store'
 
 const CONCURRENCY = 6
@@ -49,8 +50,9 @@ export async function exportToFolder(
 
   let done = 0
   await mapWithConcurrency(images, CONCURRENCY, async (img) => {
-    const blob = await rotateImageToBlob(img.file, img.angle)
-    const bytes = new Uint8Array(await blob.arrayBuffer())
+    const rotated = await rotateImageToBlob(img.file, img.angle)
+    const trimmed = await trimTransparentEdges(rotated, 2)
+    const bytes = new Uint8Array(await trimmed.arrayBuffer())
     await writeFile(joinPath(dir, img.name), bytes)
     done++
     onProgress?.(done, images.length)
