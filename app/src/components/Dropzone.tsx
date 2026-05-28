@@ -1,13 +1,11 @@
 import { useCallback, useRef, useState } from 'react'
-import { FolderOpen, ImagePlus, Upload } from 'lucide-react'
+import { FileJson, FolderOpen, ImagePlus, Upload } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { useStore } from '@/store'
-import {
-  extractFilesFromDataTransfer,
-  filterPng,
-} from '@/lib/load-files'
+import { extractFilesFromDataTransfer } from '@/lib/load-files'
+import { splitPngAndJson } from '@/lib/sticker-metadata'
 
 type Props = {
   variant?: 'hero' | 'compact'
@@ -20,29 +18,51 @@ const WEBKIT_DIRECTORY_PROPS = {
 
 export function Dropzone({ variant = 'hero' }: Props) {
   const addImages = useStore((s) => s.addImages)
+  const ingestMetadataFiles = useStore((s) => s.ingestMetadataFiles)
+  const probeNewImages = useStore((s) => s.probeNewImages)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const folderInputRef = useRef<HTMLInputElement>(null)
+  const jsonInputRef = useRef<HTMLInputElement>(null)
   const [isOver, setIsOver] = useState(false)
 
   const ingest = useCallback(
-    (files: File[]) => {
-      const { png, skipped } = filterPng(files)
-      if (png.length === 0 && skipped.length === 0) return
-      const added = addImages(png)
-      if (added > 0) toast.success(`Добавлено изображений: ${added}`)
-      if (skipped.length > 0)
-        toast.warning(
-          `Пропущено не-PNG файлов: ${skipped.length}`,
-          {
-            description:
-              skipped.slice(0, 4).join(', ') +
-              (skipped.length > 4 ? '…' : ''),
-          }
-        )
-      if (added === 0 && png.length > 0)
-        toast.info('Все эти изображения уже добавлены')
+    async (files: File[]) => {
+      const { png, json, skipped } = splitPngAndJson(files)
+      if (png.length === 0 && json.length === 0 && skipped.length === 0) return
+
+      if (json.length > 0) {
+        const r = await ingestMetadataFiles(json)
+        if (r.filesParsed > 0) {
+          const parts: string[] = []
+          if (r.stickersAdded > 0)
+            parts.push(`+${r.stickersAdded} записей`)
+          if (r.stickersReplaced > 0)
+            parts.push(`перезаписано ${r.stickersReplaced}`)
+          toast.success(
+            `sizes.json загружен (${r.filesParsed} ${pluralFiles(r.filesParsed)})`,
+            { description: parts.join(' · ') || undefined }
+          )
+        }
+      }
+
+      if (png.length > 0) {
+        const { added, newIds } = addImages(png)
+        if (added > 0) toast.success(`Добавлено изображений: ${added}`)
+        else if (png.length > 0)
+          toast.info('Все эти изображения уже добавлены')
+        if (newIds.length > 0) {
+          void probeNewImages(newIds)
+        }
+      }
+
+      if (skipped.length > 0) {
+        toast.warning(`Пропущено: ${skipped.length}`, {
+          description:
+            skipped.slice(0, 4).join(', ') + (skipped.length > 4 ? '…' : ''),
+        })
+      }
     },
-    [addImages]
+    [addImages, ingestMetadataFiles, probeNewImages]
   )
 
   const onDrop = useCallback(
@@ -50,7 +70,7 @@ export function Dropzone({ variant = 'hero' }: Props) {
       e.preventDefault()
       setIsOver(false)
       const files = await extractFilesFromDataTransfer(e.dataTransfer.items)
-      ingest(files)
+      await ingest(files)
     },
     [ingest]
   )
@@ -59,7 +79,7 @@ export function Dropzone({ variant = 'hero' }: Props) {
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const list = e.target.files
       if (!list) return
-      ingest(Array.from(list))
+      void ingest(Array.from(list))
       e.target.value = ''
     },
     [ingest]
@@ -82,6 +102,13 @@ export function Dropzone({ variant = 'hero' }: Props) {
         onChange={onFiles}
         {...WEBKIT_DIRECTORY_PROPS}
       />
+      <input
+        ref={jsonInputRef}
+        type="file"
+        accept=".json,application/json"
+        hidden
+        onChange={onFiles}
+      />
     </>
   )
 
@@ -103,6 +130,14 @@ export function Dropzone({ variant = 'hero' }: Props) {
         >
           <FolderOpen className="size-4" />
           Добавить папку
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => jsonInputRef.current?.click()}
+        >
+          <FileJson className="size-4" />
+          sizes.json
         </Button>
         {hiddenInputs}
       </div>
@@ -127,13 +162,13 @@ export function Dropzone({ variant = 'hero' }: Props) {
       </div>
       <div className="space-y-1">
         <h2 className="text-xl font-semibold text-foreground">
-          Перетащите PNG-изображения или папку сюда
+          Перетащите PNG, папку или sizes.json сюда
         </h2>
         <p className="text-sm text-muted-foreground">
-          Поддерживаются файлы и целые папки. Прозрачность сохраняется.
+          Размеры стикеров подхватываются автоматически из sizes.json
         </p>
       </div>
-      <div className="flex gap-2">
+      <div className="flex flex-wrap justify-center gap-2">
         <Button onClick={() => fileInputRef.current?.click()}>
           <ImagePlus className="size-4" />
           Выбрать файлы
@@ -145,8 +180,24 @@ export function Dropzone({ variant = 'hero' }: Props) {
           <FolderOpen className="size-4" />
           Выбрать папку
         </Button>
+        <Button
+          variant="outline"
+          onClick={() => jsonInputRef.current?.click()}
+        >
+          <FileJson className="size-4" />
+          Загрузить sizes.json
+        </Button>
       </div>
       {hiddenInputs}
     </div>
   )
+}
+
+function pluralFiles(n: number): string {
+  const r10 = n % 10
+  const r100 = n % 100
+  if (r100 >= 11 && r100 <= 14) return 'файлов'
+  if (r10 === 1) return 'файл'
+  if (r10 >= 2 && r10 <= 4) return 'файла'
+  return 'файлов'
 }

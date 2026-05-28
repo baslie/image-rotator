@@ -30,10 +30,17 @@ async function canvasToPngBlob(canvas: AnyCanvas): Promise<Blob> {
   })
 }
 
+export type TrimResult = {
+  blob: Blob
+  width: number
+  height: number
+  trimmed: boolean
+}
+
 export async function trimTransparentEdges(
   blob: Blob,
   padding: number
-): Promise<Blob> {
+): Promise<TrimResult> {
   const bitmap = await createImageBitmap(blob)
   const w = bitmap.width
   const h = bitmap.height
@@ -55,7 +62,7 @@ export async function trimTransparentEdges(
 
   if (top === -1) {
     bitmap.close()
-    return blob
+    return { blob, width: w, height: h, trimmed: false }
   }
 
   let bottom = h - 1
@@ -102,7 +109,7 @@ export async function trimTransparentEdges(
 
   if (x0 === 0 && y0 === 0 && x1 === w - 1 && y1 === h - 1) {
     bitmap.close()
-    return blob
+    return { blob, width: w, height: h, trimmed: false }
   }
 
   const cw = x1 - x0 + 1
@@ -111,5 +118,6 @@ export async function trimTransparentEdges(
   out.ctx.drawImage(bitmap, x0, y0, cw, ch, 0, 0, cw, ch)
   bitmap.close()
 
-  return await canvasToPngBlob(out.canvas)
+  const trimmedBlob = await canvasToPngBlob(out.canvas)
+  return { blob: trimmedBlob, width: cw, height: ch, trimmed: true }
 }

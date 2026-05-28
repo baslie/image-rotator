@@ -1,10 +1,17 @@
 import { memo } from 'react'
-import { Check, Hand, RotateCcw, RotateCw, X } from 'lucide-react'
+import { Check, FileX, Hand, RotateCcw, RotateCw, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { useStore, type ImageItem } from '@/store'
 import { cn } from '@/lib/utils'
 import { getRotatedFitScale } from '@/lib/angle'
+import { formatMm, predictedRotatedMm } from '@/lib/sticker-metadata'
 import { useRotateDrag } from './image/useRotateDrag'
 
 type Props = { image: ImageItem }
@@ -142,10 +149,53 @@ function ImageCardImpl({ image }: Props) {
         </Button>
       </div>
 
-      <p className="truncate text-xs text-muted-foreground" title={image.name}>
-        {image.name}
-      </p>
+      <div className="flex flex-col gap-0.5">
+        <p
+          className="truncate text-xs text-muted-foreground"
+          title={image.name}
+        >
+          {image.name}
+        </p>
+        <SizeLine image={image} />
+      </div>
     </div>
+  )
+}
+
+function SizeLine({ image }: { image: ImageItem }) {
+  if (!image.metadata) {
+    return (
+      <TooltipProvider delayDuration={200}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="inline-flex items-center gap-1 self-start rounded bg-muted/60 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+              <FileX className="size-3" />
+              без sizes.json
+            </span>
+          </TooltipTrigger>
+          <TooltipContent>
+            Этот PNG не сопоставлен с записью в sizes.json — размеры в мм не известны.
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    )
+  }
+  const base = formatMm(image.metadata.with_white_outline_mm)
+  if (image.angle === 0) {
+    return (
+      <p className="font-mono text-[10px] text-muted-foreground">{base}</p>
+    )
+  }
+  const predicted = predictedRotatedMm(
+    image.metadata.with_white_outline_mm,
+    image.angle
+  )
+  return (
+    <p className="font-mono text-[10px] text-muted-foreground">
+      <span className="opacity-60 line-through">{base}</span>
+      <span className="mx-1">→</span>
+      <span className="text-primary">{formatMm(predicted)}</span>
+    </p>
   )
 }
 
