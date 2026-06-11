@@ -1,11 +1,11 @@
 name: Release → Яндекс.Диск
 
-# При публикации релиза на GitHub этот workflow скачивает приложенные артефакты
-# (установщик *-setup.exe и портативный image-rotator.exe) и заливает их в папку на
-# Яндекс.Диске через ОФИЦИАЛЬНЫЙ REST API (https://yandex.ru/dev/disk/api/).
+# При публикации релиза на GitHub этот workflow скачивает приложенный установщик
+# (*-setup.exe) и заливает его в папку на Яндекс.Диске через ОФИЦИАЛЬНЫЙ REST API
+# (https://yandex.ru/dev/disk/api/).
 #
-# Режим overwrite-only: на Диске всегда ровно два файла со СТАБИЛЬНЫМИ именами, они
-# перезаписываются на месте (overwrite=true) — история не копится, ссылки постоянные.
+# Режим overwrite-only: на Диске всегда ровно один файл со СТАБИЛЬНЫМ именем, он
+# перезаписывается на месте (overwrite=true) — история не копится, ссылка постоянная.
 #
 # Почему НЕ rclone: Яндекс блокирует встроенный client_id rclone (ошибка 401),
 # поэтому используем своё OAuth-приложение и обращаемся к API напрямую через curl.
@@ -26,9 +26,8 @@ permissions:
 env:
   # Папка на Яндекс.Диске (путь от корня Диска). Поддерживает вложенность (a/b/c).
   YADISK_DIR: "image-rotator-releases"
-  # Стабильные имена «всегда последней версии» — постоянные прямые ссылки.
+  # Стабильное имя «всегда последней версии» — постоянная прямая ссылка.
   SETUP_NAME: "image-rotator-setup-latest.exe"
-  PORTABLE_NAME: "image-rotator-portable-latest.exe"
 
 jobs:
   upload:
@@ -112,22 +111,8 @@ jobs:
             echo "Заливаю установщик:"
             upload "$SETUP" "$YADISK_DIR/$SETUP_NAME"
           else
-            echo "::warning::В релизе нет *-setup.exe — установщик не обновлён"
-          fi
-
-          # Портатив: первый *.exe, который НЕ *-setup.exe → стабильное имя PORTABLE_NAME
-          PORTABLE=""
-          for cand in _release/*.exe; do
-            case "$cand" in
-              *-setup.exe) continue ;;
-              *) PORTABLE="$cand"; break ;;
-            esac
-          done
-          if [ -n "$PORTABLE" ]; then
-            echo "Заливаю портативный exe:"
-            upload "$PORTABLE" "$YADISK_DIR/$PORTABLE_NAME"
-          else
-            echo "::warning::В релизе нет портативного .exe — портатив не обновлён"
+            echo "::error::В релизе нет *-setup.exe — заливать нечего"
+            exit 1
           fi
 
           echo "Готово. Содержимое папки на Яндекс.Диске:"
