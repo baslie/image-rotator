@@ -1,6 +1,8 @@
 # Image Rotator — варианты логотипа
 
-Папка с черновыми концепциями фирменного знака для **Image Rotator**. Это ассеты для выбора — код приложения они не затрагивают.
+> ✅ **Выбрана концепция `01-rotate-arc`** и внедрена в приложение начиная с **v1.2.0** (иконка `.exe` и установщика, favicon, шапка интерфейса). Остальные концепции сохранены как архив вариантов.
+
+Папка с концепциями фирменного знака для **Image Rotator** — галерея, по которой выбирали логотип.
 
 ## Как смотреть
 
@@ -49,9 +51,9 @@ magick -background none concepts\01-rotate-arc\icon.svg icon.png
 
 Онлайн-вариант без установки: https://cloudconvert.com/svg-to-png
 
-## Дальнейшие шаги
+## Внедрение (сделано в v1.2.0)
 
-После выбора концепции — отдельной задачей:
-1. заменить `app/public/favicon.svg`;
-2. перегенерировать иконки Tauri в `app/src-tauri/icons/`;
-3. при желании заменить иконку Sparkles в `app/src/components/Toolbar.tsx` на выбранный знак.
+Выбранная концепция `01-rotate-arc` заведена в приложение:
+1. `app/public/favicon.svg` — заменён на знак Rotate Arc;
+2. иконки Tauri в `app/src-tauri/icons/` — перегенерированы из источника `app/src-tauri/app-icon.svg` командой `npm run tauri icon src-tauri/app-icon.svg`;
+3. `app/src/components/Toolbar.tsx` — иконка Sparkles заменена компонентом `RotateArcLogo` (`app/src/components/icons/RotateArcLogo.tsx`).
