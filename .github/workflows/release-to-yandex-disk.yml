@@ -1,0 +1,135 @@
+name: Release → Яндекс.Диск
+
+# При публикации релиза на GitHub этот workflow скачивает приложенные артефакты
+# (установщик *-setup.exe и портативный image-rotator.exe) и заливает их в папку на
+# Яндекс.Диске через ОФИЦИАЛЬНЫЙ REST API (https://yandex.ru/dev/disk/api/).
+#
+# Режим overwrite-only: на Диске всегда ровно два файла со СТАБИЛЬНЫМИ именами, они
+# перезаписываются на месте (overwrite=true) — история не копится, ссылки постоянные.
+#
+# Почему НЕ rclone: Яндекс блокирует встроенный client_id rclone (ошибка 401),
+# поэтому используем своё OAuth-приложение и обращаемся к API напрямую через curl.
+# Подробности и настройка токена — docs/RELEASE_TO_YANDEX_DISK.md
+
+on:
+  release:
+    types: [published]      # авто: при публикации релиза на GitHub
+  workflow_dispatch:        # ручной запуск из вкладки Actions
+    inputs:
+      tag:
+        description: "Тег релиза (пусто = взять самый свежий)"
+        required: false
+
+permissions:
+  contents: read            # нужно, чтобы gh release download мог читать релизы
+
+env:
+  # Папка на Яндекс.Диске (путь от корня Диска). Поддерживает вложенность (a/b/c).
+  YADISK_DIR: "image-rotator-releases"
+  # Стабильные имена «всегда последней версии» — постоянные прямые ссылки.
+  SETUP_NAME: "image-rotator-setup-latest.exe"
+  PORTABLE_NAME: "image-rotator-portable-latest.exe"
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Определить тег релиза
+        id: tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            TAG="${{ github.event.release.tag_name }}"
+          elif [ -n "${{ github.event.inputs.tag }}" ]; then
+            TAG="${{ github.event.inputs.tag }}"
+          else
+            TAG="$(gh release view --repo '${{ github.repository }}' --json tagName -q .tagName)"
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Релиз: $TAG"
+
+      - name: Скачать ассеты релиза
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p _release
+          gh release download "${{ steps.tag.outputs.tag }}" \
+            --repo "${{ github.repository }}" \
+            --dir _release --clobber
+          echo "Скачано:"
+          ls -la _release
+
+      - name: Залить на Яндекс.Диск
+        env:
+          YANDEX_TOKEN: ${{ secrets.YANDEX_DISK_TOKEN }}
+        run: |
+          set -euo pipefail
+          API="https://cloud-api.yandex.net/v1/disk"
+          AUTH="Authorization: OAuth ${YANDEX_TOKEN}"
+
+          if [ -z "${YANDEX_TOKEN:-}" ]; then
+            echo "::error::Секрет YANDEX_DISK_TOKEN пуст. См. docs/RELEASE_TO_YANDEX_DISK.md"
+            exit 1
+          fi
+
+          # URL-кодирование строки (через jq, он есть на ubuntu-latest)
+          urlenc() { jq -rn --arg x "$1" '$x|@uri'; }
+
+          # Проверка токена: запрос инфо о Диске
+          code=$(curl -s -o /tmp/disk.json -w '%{http_code}' -H "$AUTH" "$API/")
+          if [ "$code" != "200" ]; then
+            echo "::error::Авторизация не прошла (HTTP $code). Проверь токен YANDEX_DISK_TOKEN."
+            cat /tmp/disk.json || true
+            exit 1
+          fi
+          echo "Авторизация OK."
+
+          # Создать папку назначения (вложенность — посегментно). 201=создано, 409=уже есть.
+          path=""
+          IFS='/' read -ra SEGS <<< "$YADISK_DIR"
+          for seg in "${SEGS[@]}"; do
+            [ -z "$seg" ] && continue
+            path="${path:+$path/}$seg"
+            c=$(curl -s -o /dev/null -w '%{http_code}' -X PUT -H "$AUTH" "$API/resources?path=$(urlenc "$path")")
+            echo "  mkdir $path -> $c"
+          done
+
+          # Функция заливки одного файла (overwrite=true → перезапись, ссылка не меняется)
+          upload() {
+            local src="$1" dst="$2" href
+            href=$(curl -fsS -H "$AUTH" "$API/resources/upload?path=$(urlenc "$dst")&overwrite=true" | jq -r .href)
+            curl -fsS -X PUT --upload-file "$src" "$href"
+            echo "  → $dst  ($(basename "$src"))"
+          }
+
+          shopt -s nullglob
+
+          # Установщик: первый *-setup.exe → стабильное имя SETUP_NAME
+          SETUP=""
+          for cand in _release/*-setup.exe; do SETUP="$cand"; break; done
+          if [ -n "$SETUP" ]; then
+            echo "Заливаю установщик:"
+            upload "$SETUP" "$YADISK_DIR/$SETUP_NAME"
+          else
+            echo "::warning::В релизе нет *-setup.exe — установщик не обновлён"
+          fi
+
+          # Портатив: первый *.exe, который НЕ *-setup.exe → стабильное имя PORTABLE_NAME
+          PORTABLE=""
+          for cand in _release/*.exe; do
+            case "$cand" in
+              *-setup.exe) continue ;;
+              *) PORTABLE="$cand"; break ;;
+            esac
+          done
+          if [ -n "$PORTABLE" ]; then
+            echo "Заливаю портативный exe:"
+            upload "$PORTABLE" "$YADISK_DIR/$PORTABLE_NAME"
+          else
+            echo "::warning::В релизе нет портативного .exe — портатив не обновлён"
+          fi
+
+          echo "Готово. Содержимое папки на Яндекс.Диске:"
+          curl -fsS -H "$AUTH" "$API/resources?path=$(urlenc "$YADISK_DIR")&limit=100" \
+            | jq -r '.._embedded?.items[]? | "  \(.name)\t\(.size) B"' || true

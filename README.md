@@ -19,10 +19,14 @@
 
 ## Скачать
 
-Готовые сборки лежат в [GitHub Releases](https://github.com/baslie/image-rotator/releases/latest):
+**Актуальная версия — без GitHub:** [папка на Яндекс.Диске](https://disk.yandex.ru/d/k0EwLxhEl6m78w). Внутри всегда последние `image-rotator-setup-latest.exe` (установщик) и `image-rotator-portable-latest.exe` (портатив). Ссылка постоянная — её можно давать кому угодно.
+
+Либо из [GitHub Releases](https://github.com/baslie/image-rotator/releases/latest):
 
 - **`Image Rotator_1.2.0_x64-setup.exe`** — NSIS-инсталлятор, ~1.3 MB. Поставит приложение в `Program Files`, добавит ярлыки. На Windows 10 при необходимости подтянет WebView2.
 - **`image-rotator.exe`** — портативный standalone, ~3.5 MB, запускается без установки. На Windows 11 WebView2 уже встроен.
+
+> Доставка свежих сборок на Яндекс.Диск автоматизирована через GitHub Actions — см. [`docs/RELEASE_TO_YANDEX_DISK.md`](docs/RELEASE_TO_YANDEX_DISK.md).
 
 ## Как работает связка с `sizes.json`
 
