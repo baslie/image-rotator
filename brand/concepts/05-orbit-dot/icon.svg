@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" fill="none" stroke="#23d9b7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Image Rotator">
-  <title>Image Rotator — Orbit Dot</title>
-  <circle cx="24" cy="24" r="15"/>
-  <circle cx="24" cy="24" r="3" fill="#23d9b7" stroke="none"/>
-  <circle cx="24" cy="9" r="3.6" fill="#23d9b7" stroke="none"/>
-  <path d="M35.5 19.8 L39 24 L34.8 27.4"/>
-</svg>

@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" fill="none" stroke="#23d9b7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Image Rotator">
-  <title>Image Rotator — Cycle R</title>
-  <path d="M34.32 9.25 A18 18 0 1 1 13.68 9.25"/>
-  <path d="M8.7 9.7 L13.68 9.25 L11.57 13.78"/>
-  <text x="24" y="24.5" font-family="ui-sans-serif, system-ui, 'Segoe UI', Roboto, sans-serif" font-size="23" font-weight="700" fill="#23d9b7" stroke="none" text-anchor="middle" dominant-baseline="central">R</text>
-</svg>
