@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 232 56" width="232" height="56" fill="none" role="img" aria-label="Image Rotator">
+  <title>Image Rotator — Cycle R, horizontal lockup</title>
+  <g transform="translate(4,4)" stroke="#23d9b7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M34.32 9.25 A18 18 0 1 1 13.68 9.25"/>
+    <path d="M8.7 9.7 L13.68 9.25 L11.57 13.78"/>
+    <text x="24" y="24.5" font-family="ui-sans-serif, system-ui, 'Segoe UI', Roboto, sans-serif" font-size="23" font-weight="700" fill="#23d9b7" stroke="none" text-anchor="middle" dominant-baseline="central">R</text>
+  </g>
+  <text x="64" y="35" font-family="ui-sans-serif, system-ui, 'Segoe UI', Roboto, sans-serif" font-size="23" letter-spacing="-0.3">
+    <tspan fill="#fafafa" font-weight="600">Image </tspan><tspan fill="#23d9b7" font-weight="700">Rotator</tspan>
+  </text>
+</svg>

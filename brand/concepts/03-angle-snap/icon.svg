@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" fill="none" stroke="#23d9b7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Image Rotator">
+  <title>Image Rotator — Angle Snap</title>
+  <circle cx="24" cy="24" r="16.5"/>
+  <path d="M24 7.5 L24 12"/>
+  <path d="M40.5 24 L36 24"/>
+  <path d="M24 40.5 L24 36"/>
+  <path d="M7.5 24 L12 24"/>
+  <path d="M24 24 L33.9 14.1"/>
+  <path d="M33.0 19.0 L33.9 14.1 L29.0 15.0"/>
+  <circle cx="24" cy="24" r="2.3" fill="#23d9b7" stroke="none"/>
+</svg>

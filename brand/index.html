@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Rotator — варианты логотипа</title>
+<style>
+  :root {
+    --bg: #0a0a0d;
+    --card: #121217;
+    --tile: #0e0e12;
+    --border: #2e2e35;
+    --text: #fafafa;
+    --muted: #a8a8b8;
+    --primary: #23d9b7;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.5;
+  }
+  header {
+    position: sticky; top: 0; z-index: 10;
+    backdrop-filter: blur(12px);
+    background: color-mix(in srgb, var(--bg) 80%, transparent);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 32px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  }
+  header .brand { display: flex; align-items: center; gap: 12px; }
+  header h1 { font-size: 18px; font-weight: 600; margin: 0; letter-spacing: -0.3px; }
+  header h1 .accent { color: var(--primary); }
+  header p { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
+  .toggle {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--card); border: 1px solid var(--border); color: var(--text);
+    border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  .toggle:hover { border-color: var(--primary); }
+  .toggle .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--primary); }
+  main { max-width: 1180px; margin: 0 auto; padding: 32px; }
+  .intro { color: var(--muted); font-size: 14px; max-width: 760px; margin: 0 0 32px; }
+  .concept {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px; margin-bottom: 24px;
+  }
+  .concept-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 4px; flex-wrap: wrap; }
+  .concept-num {
+    font-size: 12px; font-weight: 700; color: var(--primary);
+    background: color-mix(in srgb, var(--primary) 15%, transparent);
+    border-radius: 6px; padding: 2px 8px; font-variant-numeric: tabular-nums;
+  }
+  .concept h2 { font-size: 19px; margin: 0; font-weight: 600; letter-spacing: -0.3px; }
+  .concept .desc { color: var(--muted); font-size: 13.5px; margin: 6px 0 20px; max-width: 720px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+  .tile {
+    background: var(--tile); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+    min-height: 130px; transition: background .2s;
+  }
+  body.light-preview .tile { background: #ffffff; border-color: #e2e2e8; }
+  .tile img { display: block; }
+  .tile .icon-img { height: 64px; width: auto; }
+  .tile .lockup-img { max-width: 100%; height: auto; }
+  .tile-label { font-size: 11px; color: var(--muted); letter-spacing: .3px; text-transform: uppercase; }
+  body.light-preview .tile-label { color: #6b7280; }
+  .scale-row {
+    margin-top: 14px; display: flex; align-items: flex-end; gap: 24px; flex-wrap: wrap;
+    background: var(--tile); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 16px 20px;
+  }
+  body.light-preview .scale-row { background: #ffffff; border-color: #e2e2e8; }
+  .scale-item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .scale-item img { display: block; }
+  .scale-item .s16 { width: 16px; height: 16px; }
+  .scale-item .s32 { width: 32px; height: 32px; }
+  .scale-item .s64 { width: 64px; height: 64px; }
+  .scale-item span { font-size: 11px; color: var(--muted); }
+  body.light-preview .scale-item span { color: #6b7280; }
+  .scale-caption { font-size: 11px; color: var(--muted); margin-left: auto; align-self: center; max-width: 220px; }
+  body.light-preview .scale-caption { color: #6b7280; }
+  footer { color: var(--muted); font-size: 12.5px; text-align: center; padding: 24px 32px 48px; }
+  footer code { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 1px 6px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <img src="concepts/01-rotate-arc/icon.svg" width="34" height="34" alt="">
+    <div>
+      <h1>Image <span class="accent">Rotator</span> — варианты логотипа</h1>
+      <p>6 концепций · тёмная тема · бирюза #23d9b7</p>
+    </div>
+  </div>
+  <button class="toggle" id="bgToggle"><span class="dot"></span><span id="bgLabel">Фон превью: тёмный</span></button>
+</header>
+
+<main>
+  <p class="intro">
+    Выбери понравившуюся концепцию. Для каждой показаны: <b>иконка</b> (моно-бирюза),
+    <b>иконка с градиентом</b>, <b>горизонтальный</b> и <b>вертикальный</b> локап с названием.
+    Ниже — проверка читаемости в реальных размерах <b>16 / 32 / 64&nbsp;px</b> (favicon · тулбар · иконка приложения).
+    Кнопкой справа сверху можно переключить фон превью на светлый.
+  </p>
+  <div id="concepts"></div>
+</main>
+
+<footer>
+  Файлы: <code>brand/concepts/&lt;концепция&gt;/{icon,icon-gradient,lockup-horizontal,lockup-vertical}.svg</code><br>
+  После выбора — заменим favicon, иконки Tauri и знак в тулбаре приложения.
+</footer>
+
+<script>
+  const concepts = [
+    { dir: "01-rotate-arc",     name: "Rotate Arc",     desc: "Рамка изображения и круговая стрелка поворота вокруг неё — самая прямая, «читаемая с первого взгляда» метафора продукта." },
+    { dir: "02-rotating-frame", name: "Rotating Frame", desc: "Кадр-картинка, повёрнутый на угол, с призрачным контуром исходного положения — показывает сам акт вращения снимка." },
+    { dir: "03-angle-snap",     name: "Angle Snap",     desc: "Циферблат с засечками 0/90/180/270° и стрелкой-указателем — отсылка к снапу углов в интерфейсе приложения." },
+    { dir: "04-cycle-r",        name: "Cycle R",        desc: "Монограмма «R» (Rotator), вписанная в кольцо вращения со стрелкой. Брендовый знак-инициал, хорошо живёт как app icon." },
+    { dir: "05-orbit-dot",      name: "Orbit Dot",      desc: "Минимальный абстрактный знак ротации: точка на орбите и направляющая стрелка. Лучше всех читается в мелком размере." },
+    { dir: "06-rotor-blades",   name: "Rotor Blades",   desc: "Четыре лопасти-ротора по кругу (намёк на 4 снап-позиции 90°). Заполненный знак, особенно выигрышен в градиенте." },
+  ];
+
+  const variants = [
+    { file: "icon.svg",              label: "Иконка · моно",     cls: "icon-img" },
+    { file: "icon-gradient.svg",     label: "Иконка · градиент", cls: "icon-img" },
+    { file: "lockup-horizontal.svg", label: "Горизонт. локап",   cls: "lockup-img" },
+    { file: "lockup-vertical.svg",   label: "Вертик. локап",     cls: "lockup-img" },
+  ];
+
+  const root = document.getElementById("concepts");
+  concepts.forEach((c, i) => {
+    const tiles = variants.map(v => `
+      <div class="tile">
+        <img class="${v.cls}" src="concepts/${c.dir}/${v.file}" alt="${c.name} — ${v.label}">
+        <span class="tile-label">${v.label}</span>
+      </div>`).join("");
+
+    const icon = `concepts/${c.dir}/icon.svg`;
+    root.insertAdjacentHTML("beforeend", `
+      <section class="concept">
+        <div class="concept-head">
+          <span class="concept-num">${String(i + 1).padStart(2, "0")}</span>
+          <h2>${c.name}</h2>
+        </div>
+        <p class="desc">${c.desc}</p>
+        <div class="grid">${tiles}</div>
+        <div class="scale-row">
+          <div class="scale-item"><img class="s16" src="${icon}" alt=""><span>16&nbsp;px</span></div>
+          <div class="scale-item"><img class="s32" src="${icon}" alt=""><span>32&nbsp;px</span></div>
+          <div class="scale-item"><img class="s64" src="${icon}" alt=""><span>64&nbsp;px</span></div>
+          <div class="scale-caption">Проверка читаемости знака в реальных размерах favicon / тулбара / app icon.</div>
+        </div>
+      </section>`);
+  });
+
+  const btn = document.getElementById("bgToggle");
+  const label = document.getElementById("bgLabel");
+  btn.addEventListener("click", () => {
+    const light = document.body.classList.toggle("light-preview");
+    label.textContent = light ? "Фон превью: светлый" : "Фон превью: тёмный";
+  });
+</script>
+</body>
+</html>

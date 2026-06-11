@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" fill="#23d9b7" stroke="none" role="img" aria-label="Image Rotator">
+  <title>Image Rotator — Rotor Blades</title>
+  <defs>
+    <mask id="hub">
+      <rect width="48" height="48" fill="white"/>
+      <circle cx="24" cy="24" r="2.6" fill="black"/>
+    </mask>
+  </defs>
+  <g mask="url(#hub)">
+    <path d="M24 24 C 19 19, 19 10, 26 6 C 27 12, 27 19, 24 24 Z"/>
+    <path d="M24 24 C 19 19, 19 10, 26 6 C 27 12, 27 19, 24 24 Z" transform="rotate(90 24 24)"/>
+    <path d="M24 24 C 19 19, 19 10, 26 6 C 27 12, 27 19, 24 24 Z" transform="rotate(180 24 24)"/>
+    <path d="M24 24 C 19 19, 19 10, 26 6 C 27 12, 27 19, 24 24 Z" transform="rotate(270 24 24)"/>
+  </g>
+</svg>
