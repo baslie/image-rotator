@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { FileJson, FolderDown, RotateCcw, Sparkles, Trash2 } from 'lucide-react'
+import { FileJson, FolderDown, RotateCcw, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import {
@@ -12,6 +12,7 @@ import { useStore } from '@/store'
 import { exportToFolder } from '@/lib/tauri-export'
 import { Dropzone } from './Dropzone'
 import { ColumnSelector } from './ColumnSelector'
+import { RotateArcLogo } from './icons/RotateArcLogo'
 
 export function Toolbar() {
   const images = useStore((s) => s.images)
@@ -76,7 +77,7 @@ export function Toolbar() {
       <div className="flex flex-wrap items-center gap-3 px-6 py-3">
         <div className="flex items-center gap-2">
           <div className="rounded-md bg-primary/15 p-1.5 text-primary">
-            <Sparkles className="size-4" />
+            <RotateArcLogo className="size-4" />
           </div>
           <h1 className="text-base font-semibold">Image Rotator</h1>
         </div>

@@ -1,0 +1,28 @@
+import type { SVGProps } from 'react'
+
+/**
+ * Image Rotator brand mark — "Rotate Arc": an image frame wrapped by a
+ * circular rotation arrow. Uses `currentColor`, so colour is controlled by
+ * the surrounding text colour (e.g. `text-primary`).
+ */
+export function RotateArcLogo(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 48 48"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={3}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      {...props}
+    >
+      <rect x="15" y="15" width="18" height="18" rx="3" />
+      <path d="M16.5 30.5 L20.5 25.5 L24 29 L28.5 23.5 L31.5 27" />
+      <circle cx="20.3" cy="20" r="1.7" fill="currentColor" stroke="none" />
+      <path d="M34.32 9.25 A18 18 0 1 1 13.68 9.25" />
+      <path d="M8.7 9.7 L13.68 9.25 L11.57 13.78" />
+    </svg>
+  )
+}
